@@ -19,7 +19,10 @@ links to a folder here, and every folder can be run on a laptop, with no cloud a
 Each folder has its own README: what it shows, how to run it, what to try next, and what to read. Each example has
 tests, and CI runs them on every change, so the code here keeps working.
 
-Folders are added one pull request at a time. A folder listed above without content yet is planned.
+Folders are added one pull request at a time. `database/` is planned and has no content yet.
+
+Every folder is set up the same way: from inside it, create a virtual environment, install its pinned
+`requirements.txt`, and run `pytest`. The folder's README has the exact commands.
 
 ## Why this exists
 
