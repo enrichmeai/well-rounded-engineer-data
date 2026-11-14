@@ -1,0 +1,19 @@
+# Virtual environments: each folder has its own .venv
+.venv/
+__pycache__/
+.pytest_cache/
+
+# DuckDB files written by the examples
+*.duckdb
+*.duckdb.wal
+
+# dbt
+dbt/shop/target/
+dbt/shop/dbt_packages/
+dbt/shop/logs/
+logs/
+
+# Airflow
+airflow/output/
+dbt/shop/.user.yml
+.airflow/
