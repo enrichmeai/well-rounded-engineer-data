@@ -1,0 +1,45 @@
+name: shop
+version: "1.0.0"
+profile: shop
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+
+clean-targets: ["target", "dbt_packages"]
+
+flags:
+  # A learning project has no reason to send usage data to dbt Labs. Remove this line to allow it.
+  send_anonymous_usage_stats: false
+
+seeds:
+  shop:
+    # Say the types out loud instead of leaving them to CSV type detection.
+    raw_customers:
+      +column_types:
+        customer_id: integer
+        name: varchar
+        country: varchar
+        signup_date: date
+    raw_products:
+      +column_types:
+        product_id: integer
+        name: varchar
+        category: varchar
+        price: decimal(10, 2)
+    raw_orders:
+      +column_types:
+        order_id: integer
+        customer_id: integer
+        product_id: integer
+        order_date: date
+        quantity: integer
+        amount: decimal(10, 2)
+        status: varchar
+
+models:
+  shop:
+    staging:
+      +materialized: view
+    marts:
+      +materialized: table

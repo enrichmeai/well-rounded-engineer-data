@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: ${{ matrix.folder }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - folder: sql
+          - folder: datalibs
+          - folder: dbt
+          - folder: airflow
+            # Airflow is installed against its published constraints file, as Airflow's docs ask.
+            pip-args: --constraint https://raw.githubusercontent.com/apache/airflow/constraints-3.4.0/constraints-3.13.txt
+    defaults:
+      run:
+        working-directory: ${{ matrix.folder }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: ${{ matrix.folder }}/requirements.txt
+
+      - name: Install
+        run: python -m pip install -r requirements.txt ${{ matrix.pip-args }}
+
+      - name: Test
+        run: python -m pytest -v tests
