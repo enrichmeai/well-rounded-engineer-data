@@ -1,0 +1,10 @@
+# dbt reads this file because the commands in the README pass --profiles-dir . (run from inside shop/).
+# The database is a local DuckDB file. A relative path is relative to this file, so by default it is
+# shop/shop.duckdb (gitignored). The tests set SHOP_DUCKDB_PATH to build into a temporary folder instead.
+shop:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('SHOP_DUCKDB_PATH', 'shop.duckdb') }}"
+      threads: 1

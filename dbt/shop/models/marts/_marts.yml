@@ -1,0 +1,46 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: One row per order, with the product category and whether the order counts as revenue.
+    columns:
+      - name: order_id
+        data_tests:
+          - unique
+          - not_null
+      - name: is_revenue
+        data_tests:
+          - not_null
+
+  - name: dim_customers
+    description: One row per customer, with orders placed and lifetime revenue (cancelled and unpriced orders left out).
+    columns:
+      - name: customer_id
+        data_tests:
+          - unique
+          - not_null
+      - name: lifetime_revenue
+        data_tests:
+          - not_null
+
+unit_tests:
+  # A unit test checks a model's logic on rows you write by hand, before it ever touches real data.
+  - name: dim_customers_counts_only_revenue_orders
+    description: >
+      Cancelled orders and orders with no amount are counted as placed but add nothing to revenue,
+      and a customer with no orders still appears, with 0 orders and 0 revenue.
+    model: dim_customers
+    given:
+      - input: ref('stg_customers')
+        rows:
+          - {customer_id: 1, customer_name: Ann, country: UK, signup_date: 2026-01-01}
+          - {customer_id: 2, customer_name: Bo, country: null, signup_date: 2026-01-02}
+      - input: ref('fct_orders')
+        rows:
+          - {order_id: 1, customer_id: 1, order_date: 2026-01-05, amount: 10.00, is_revenue: true}
+          - {order_id: 2, customer_id: 1, order_date: 2026-01-03, amount: 99.00, is_revenue: false}
+          - {order_id: 3, customer_id: 1, order_date: 2026-01-09, amount: null, is_revenue: false}
+    expect:
+      rows:
+        - {customer_id: 1, orders_placed: 3, first_order_date: 2026-01-03, lifetime_revenue: 10.00}
+        - {customer_id: 2, orders_placed: 0, first_order_date: null, lifetime_revenue: 0}
