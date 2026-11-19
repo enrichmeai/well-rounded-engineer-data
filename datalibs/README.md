@@ -17,6 +17,22 @@ Read first: [Data libraries in the guide](https://enrichmeai.com/well-rounded-en
   rule (drop missing amounts) before summing, instead of leaving it to whichever library runs the code.
 - `data/orders.csv` was made by `make_data.py` with a fixed random seed, so it is the same every time.
 
+One file, three libraries, one answer, checked by the tests against a fourth version in plain Python. The bottom row is the difference worth knowing.
+
+```mermaid
+flowchart TD
+    F["orders.csv or orders.parquet"] --> P["pandas"]
+    F --> PL["Polars"]
+    F --> DK["DuckDB"]
+    P --> R["the same revenue per customer per month"]
+    PL --> R
+    DK --> R
+    G["a group whose amounts are all missing"] --> S1["pandas and Polars: sum is 0"]
+    G --> S2["DuckDB: sum is NULL, unknown"]
+    S1 --> RULE["so revenue.py drops missing amounts before summing"]
+    S2 --> RULE
+```
+
 ## Run it
 
 You need Python 3.11 or newer. From inside this `datalibs/` folder:
