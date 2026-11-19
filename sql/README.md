@@ -25,6 +25,26 @@ Read first: [SQL in the guide](https://enrichmeai.com/well-rounded-engineer/sql/
 `setup.sql` creates the tables with explicit types and loads them from the CSV files in `data/`.
 Every query has a test in `tests/test_queries.py` with the answer worked out by hand from the data.
 
+The three joins on the real data: five customers, ten orders, and Ema has none. Each join answers a different question about the same two tables.
+
+```mermaid
+flowchart LR
+    C["customers: Asha, Ben, Chloe, Dev, Ema"] --> I["INNER JOIN orders: all 10 orders, Ema does not appear"]
+    C --> L["LEFT JOIN orders: all 5, Ema with NULL order columns"]
+    L --> N["count(order_id): Ema 0. count(*) would say 1"]
+    C --> A["NOT EXISTS an order: only rows with no match, here Ema. Query 03 asks it of products"]
+```
+
+Why query 10 loses Dev. A `WHERE` keeps a row only when its condition is TRUE, and a comparison with NULL is neither TRUE nor FALSE: it is NULL.
+
+```mermaid
+flowchart TD
+    D["Dev: country is NULL"] --> Q1{"country <> 'UK'"}
+    Q1 -- "NULL, not TRUE" --> X["dropped: query 10 returns Ben and Ema"]
+    D --> Q2{"country IS DISTINCT FROM 'UK'"}
+    Q2 -- TRUE --> K["kept: query 11 returns Ben, Dev and Ema"]
+```
+
 ## Run it
 
 You need Python 3.11 or newer. From inside this `sql/` folder:

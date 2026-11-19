@@ -25,6 +25,22 @@ seeds/raw_*.csv  ->  models/staging/stg_*  ->  models/marts/fct_orders  ->  mode
 - `profiles.yml` sits inside the project and points at `shop.duckdb` next to it, so nothing is written to your
   home folder.
 
+The order `dbt build` runs things in, read left to right. Each model is tested before anything that depends on it is built, so a failed test stops bad data going further. The unit test checks `dim_customers` on hand-written rows first.
+
+```mermaid
+flowchart LR
+    RC["raw_customers"] --> SC["stg_customers"]
+    RO["raw_orders"] --> SO["stg_orders"]
+    RP["raw_products"] --> SP["stg_products"]
+    SO --> FO["fct_orders: is it revenue?"]
+    SP --> FO
+    SC --> DC["dim_customers: left join keeps customers with no orders"]
+    FO --> DC
+    UT["unit test on hand-written rows"] -.-> DC
+    T["data tests: unique, not_null, relationships, accepted_values"] -.-> SO
+    T -.-> FO
+```
+
 ## Run it
 
 You need Python 3.11 or newer. From inside this `dbt/` folder:

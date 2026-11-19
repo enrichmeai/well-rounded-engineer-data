@@ -27,6 +27,17 @@ Parquet      per day        bad data     in a DuckDB file
   - `test_dag_run.py` runs the whole DAG once with `airflow dags test`, against a throwaway SQLite metadata
     database (about 10 seconds).
 
+One run, step by step. Each task hands the next one a file path (a small XCom), never the data itself, and `check` can stop the run before anything is loaded.
+
+```mermaid
+flowchart TD
+    E["extract: orders.csv to orders.parquet"] -- "path to orders.parquet" --> T["transform: revenue per day"]
+    T -- "path to daily_revenue.parquet" --> C{"check: empty, or any day negative?"}
+    C -- "yes: raises an error" --> STOP["run fails, load never runs"]
+    C -- no --> L["load: CREATE OR REPLACE TABLE daily_revenue"]
+    L --> DB[("output/shop.duckdb")]
+```
+
 ## Run it
 
 You need Python 3.11 to 3.14. Airflow asks to be installed against its constraints file, which pins every
